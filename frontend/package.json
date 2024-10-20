@@ -1,0 +1,19 @@
+{
+    "name": "chat-app-frontend",
+    "version": "1.0.0",
+    "description": "Real-time chat application frontend using TypeScript and WebSockets",
+    "main": "index.js",
+    "scripts": {
+      "build": "tsc",
+      "start": "live-server"
+    },
+    "dependencies": {
+    },
+    "devDependencies": {
+      "typescript": "^5.0.0", 
+      "live-server": "^1.2.1" 
+    },
+    "author": "Your Name",
+    "license": "MIT"
+  }
+  
