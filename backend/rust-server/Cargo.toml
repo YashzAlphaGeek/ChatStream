@@ -1,0 +1,9 @@
+[package]
+name = "rust-server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix-web = "4"
+actix = "0.13.5"
+actix-web-actors = "=4.3.1"
