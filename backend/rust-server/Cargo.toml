@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-actix-web = "4"
-actix = "0.13.5"
-actix-web-actors = "=4.3.1"
+warp = "0.3"
+tokio = { version = "1", features = ["full"] }      # Futures crate for working with asynchronous streams
+futures = "0.3" 

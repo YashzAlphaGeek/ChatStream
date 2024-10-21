@@ -1,55 +1,36 @@
-use actix::prelude::*;
-use actix_web::{web, App, HttpServer, HttpRequest, HttpResponse};
-use actix_web_actors::ws;
-use std::time::{Duration, Instant};
+use warp::Filter;
+use warp::ws::{Message, WebSocket};
+use futures::{StreamExt, SinkExt}; 
 
-// WebSocket actor
-struct WebSocketSession {
-    hb: Instant,
-}
-
-impl Actor for WebSocketSession {
-    type Context = ws::WebsocketContext<Self>;
-
-    fn started(&mut self, ctx: &mut Self::Context) {
-        self.hb(ctx);
-    }
-}
-
-impl WebSocketSession {
-    fn hb(&self, ctx: &mut ws::WebsocketContext<Self>) {
-        ctx.run_interval(Duration::from_secs(5), |act, ctx| {
-            if Instant::now().duration_since(act.hb) > Duration::from_secs(10) {
-                ctx.stop();
-                return;
-            }
-            ctx.ping(b"");
+#[tokio::main]
+async fn main() {
+    // Define the WebSocket route
+    let ws_route = warp::path("ws")
+        .and(warp::ws())
+        .map(|ws: warp::ws::Ws| {
+            ws.on_upgrade(handle_socket)
         });
-    }
+
+    println!("Running WebSocket server on ws://localhost:8080");
+
+    // Start the server
+    warp::serve(ws_route).run(([127, 0, 0, 1], 8080)).await;
 }
 
-impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for WebSocketSession {
-    fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
-        match msg {
-            Ok(ws::Message::Text(text)) => ctx.text(text),
-            Ok(ws::Message::Ping(msg)) => ctx.pong(&msg),
-            Ok(ws::Message::Close(reason)) => ctx.close(reason),
-            _ => (),
+// Function to handle incoming WebSocket connections
+async fn handle_socket(ws: WebSocket) {
+    let (mut ws_sender, mut ws_receiver) = ws.split();
+    while let Some(result) = ws_receiver.next().await {
+        match result {
+            Ok(message) => {
+                let response = Message::text(format!("Echo: {}", message.to_str().unwrap_or("Invalid UTF-8")));
+                if ws_sender.send(response).await.is_err() {
+                    break; 
+                }
+            }
+            Err(_) => {
+                break; 
+            }
         }
     }
-}
-
-async fn ws_index(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse, actix_web::Error> {
-    ws::start(WebSocketSession { hb: Instant::now() }, &req, stream)
-}
-
-#[actix_web::main]
-async fn main() -> std::io::Result<()> {
-    HttpServer::new(|| {
-        App::new()
-            .route("/ws", web::get().to(ws_index))
-    })
-    .bind("0.0.0.0:8080")?
-    .run()
-    .await
 }
