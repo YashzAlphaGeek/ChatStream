@@ -1,12 +1,5 @@
 # ChatStream
-Showing the interaction between the frontend, Rust WebSocket server, and the Python file upload API.
+The architecture of a real-time chat application, highlighting the TypeScript frontend that connects via WebSocket to a Rust backend server. The backend handles incoming messages and broadcasts them to connected clients, enabling seamless communication.
 
-![image](https://github.com/user-attachments/assets/0771a06f-5b22-43c4-befb-1b53bb9eebed)
+![image](https://github.com/user-attachments/assets/54987c38-138e-4086-af5e-43452a96f984)
 
-14.	TypeScript, CSS, JS
-15.	WebSockets
-16.	C++ 15 and higher
-17.	Rest
-18.	Python
-19.	Experience with Yocto 
-Linux, Docker, GitHub, QEMU
